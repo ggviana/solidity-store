@@ -2,25 +2,27 @@ pragma solidity 0.5.8;
 
 contract Store {
     mapping(bytes32 => uint256) private _data;
+    mapping(bytes32 => bool) private _cache;
     bytes32[] private _keys;
 
     function set(bytes32 key, uint256 value) external returns (Store) {
         _data[key] = value;
 
-        if (!has(key)) {
+        if (!_internalHas(key)) {
             _keys.push(key);
+            _cache[key] = true;
         }
 
         return this;
     }
 
     function get(bytes32 key) external view returns (uint256 value) {
-        if (isEmpty()) return 0;
+        if (!_internalHas(key)) return 0;
         return _data[key];
     }
 
     function getAt(uint256 index) external view returns (uint256 value) {
-        require(!isEmpty() && index < _keys.length, "Out of bounds");
+        _requireInBounds(index);
 
         return _data[_keys[index]];
     }
@@ -29,7 +31,7 @@ contract Store {
         bool hasFoundKey = false;
         uint256 removedValue;
 
-        if (isEmpty()) {
+        if (!_internalHas(key)) {
             return (hasFoundKey, removedValue);
         }
 
@@ -39,6 +41,7 @@ contract Store {
                 hasFoundKey = true;
                 delete _keys[i];
                 delete _data[key];
+                _cache[key] = false;
             }
 
             if (hasFoundKey && i < _keys.length - 1) {
@@ -54,10 +57,11 @@ contract Store {
     }
 
     function empty() external returns (Store) {
-        if (isEmpty()) return this;
+        if (_internalIsEmpty()) return this;
 
         for (uint256 i = 0; i < _keys.length; i++) {
             delete _data[_keys[i]];
+            delete _cache[_keys[i]];
         }
 
         _keys.length = 0;
@@ -65,18 +69,12 @@ contract Store {
         return this;
     }
 
-    function isEmpty() public view returns (bool) {
-        return _keys.length == uint256(0);
+    function isEmpty() external view returns (bool) {
+        return _internalIsEmpty();
     }
 
-    function has(bytes32 key) public view returns (bool found) {
-        if (isEmpty()) return false;
-
-        for (uint256 i = 0; i < _keys.length; i++) {
-            if (_keys[i] == key) return true;
-        }
-
-        return false;
+    function has(bytes32 key) external view returns (bool found) {
+        return _internalHas(key);
     }
 
     function size() external view returns (uint256 value) {
@@ -88,8 +86,21 @@ contract Store {
     }
 
     function keyAt(uint256 index) external view returns (bytes32 key) {
-        require(!isEmpty() && index < _keys.length, "Out of bounds");
+        _requireInBounds(index);
 
         return _keys[index];
+    }
+
+    function _internalHas(bytes32 key) internal view returns (bool) {
+        if (_internalIsEmpty()) return false;
+        return _cache[key];
+    }
+
+    function _internalIsEmpty() internal view returns (bool) {
+        return _keys.length == uint256(0);
+    }
+
+    function _requireInBounds(uint256 index) internal view {
+        require(!_internalIsEmpty() && index < _keys.length, "Out of bounds");
     }
 }
