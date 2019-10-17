@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 contract Store {
     mapping(bytes32 => uint256) private _data;
