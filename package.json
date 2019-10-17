@@ -1,7 +1,7 @@
 {
   "name": "solidity-store",
   "version": "1.0.0",
-  "description": "A data structure to ",
+  "description": "A data structure to store uint values by key",
   "main": "index.js",
   "private": true,
   "repository": {
