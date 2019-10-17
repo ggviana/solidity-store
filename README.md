@@ -1,45 +1,9 @@
-# Splitter
+# Solidity Store
 
-This project aims to provide a easy way to split payments between recipients on the ethereum network
-
-## Usage
-
-### Recipient management
-
-The recipients are basically addresses that receives any payment that a user sends, the recipients receive 
-proportionally to the amount of percentage registered.
-
-```javascript
-const splitter = new web3.eth.Contract(splitterAbi, splitterAddress)
-
-// Adding a recipient
-await splitter.methods.addRecipient([recipientAccount, percentage]).send({ from: account })
-
-// Getting recipients
-await splitter.methods.getRecipients().call()
-
-// Removing recipients
-await splitter.methods.removeAllRecipients().send({ from: account })
-```
-
-### Splitting payments
-
-Having the recipients settled, any payment sent to the contract will be splitted between the recipients and will be 
-available for withdraw. You can pay the gas to send all recipients balances at once. If wanted, each owner can pull 
-his own funds from the contract. You also can see the balance stored for any account.
-
-```javascript
-const splitter = new web3.eth.Contract(splitterAbi, splitterAddress)
-
-// Transfer to recipients accounts
-await splitter.methods.transfer().send({ from: account })
-
-// Reading balance
-await splitter.methods.balanceOf(account).call()
-
-// Withdraw own balance
-await splitter.methods.withdraw(amount).send({ from: account })
-```
+This project is a proposal to provide a `key => value` data structure that is:
+* Easily iterable
+* Extensible   
+* Efficient on queries
 
 ## Scripts
 
