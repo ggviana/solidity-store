@@ -7,8 +7,8 @@ use(require('chai-bn')(BN))
 
 const Store = artifacts.require('Store')
 
-const user0 = '0xec83291a610b95e661fd3cbb467c52fdbba6be59000000000000000000000000'
-const user1 = '0xbedfe70181a5eab264a25475fca6e7e2aa3a9aa4000000000000000000000000'
+const user0 = '0x789ffC0F4dCfff50Af4ff03151C6D221BbA0f111000000000000000000000000'.toLowerCase()
+const user1 = '0x12b3FB7A671d9Bf1325e60264d47Da1B32Fa5D93000000000000000000000000'.toLowerCase()
 
 const maxValue = new BN(1).pow(new BN(256)).sub(new BN(1))
 
