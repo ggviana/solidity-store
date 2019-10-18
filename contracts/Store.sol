@@ -1,11 +1,22 @@
 pragma solidity ^0.5.8;
 
-contract Store {
-    mapping(bytes32 => uint256) private _data;
-    mapping(bytes32 => bool) private _cache;
-    bytes32[] private _keys;
+import "./IStore.sol";
 
-    function set(bytes32 key, uint256 value) external returns (Store) {
+contract Store is IStore {
+    /**
+     * Array storing keys
+     */
+    bytes32[] private _keys;
+    /**
+     * Mapping storing the data (uint256) by key
+     */
+    mapping(bytes32 => uint256) private _data;
+    /**
+     * Mapping storing whether a key exists
+     */
+    mapping(bytes32 => bool) private _cache;
+
+    function set(bytes32 key, uint256 value) external returns (IStore) {
         _data[key] = value;
 
         if (!_internalHas(key)) {
@@ -16,15 +27,15 @@ contract Store {
         return this;
     }
 
-    function get(bytes32 key) external view returns (uint256 value) {
-        if (!_internalHas(key)) return 0;
-        return _data[key];
+    function get(bytes32 key) external view returns (bool found, uint256 value) {
+        return _internalGet(key);
     }
 
-    function getAt(uint256 index) external view returns (uint256 value) {
+    function getAt(uint256 index) external view returns (bool found, uint256 value) {
         _requireInBounds(index);
 
-        return _data[_keys[index]];
+        bytes32 key = _keys[index];
+        return _internalGet(key);
     }
 
     function remove(bytes32 key) external returns (bool found, uint256 value) {
@@ -56,7 +67,7 @@ contract Store {
         return (hasFoundKey, removedValue);
     }
 
-    function empty() external returns (Store) {
+    function empty() external returns (IStore) {
         if (_internalIsEmpty()) return this;
 
         for (uint256 i = 0; i < _keys.length; i++) {
@@ -89,6 +100,11 @@ contract Store {
         _requireInBounds(index);
 
         return _keys[index];
+    }
+
+    function _internalGet(bytes32 key) internal view returns (bool found, uint256 value) {
+        if (!_internalHas(key)) return (false, 0);
+        return (true, _data[key]);
     }
 
     function _internalHas(bytes32 key) internal view returns (bool) {

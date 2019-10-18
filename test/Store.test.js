@@ -20,44 +20,60 @@ contract('Store', ([_, creator]) => {
   })
 
   it('stores values correctly', async () => {
-    let value
+    let result
 
     await store.set(user0, new BN(20))
 
-    value = await store.get(user0)
-    expect(value).to.be.a.bignumber.equal(new BN(20))
+    result = await store.get(user0)
+    expect(result.found).to.be.true
+    expect(result.value).to.be.a.bignumber.equal(new BN(20))
 
     await store.set(user1, maxValue)
 
-    value = await store.get(user1)
-    expect(value).to.be.a.bignumber.equal(maxValue)
+    result = await store.get(user1)
+    expect(result.found).to.be.true
+    expect(result.value).to.be.a.bignumber.equal(maxValue)
   })
 
   it('removes values correctly', async () => {
-    let value
+    let result
 
     await store.set(user0, new BN(20))
 
-    value = await store.get(user0)
-    expect(value).to.be.a.bignumber.equal(new BN(20))
+    result = await store.get(user0)
+    expect(result.value).to.be.a.bignumber.equal(new BN(20))
 
     await store.remove(user0)
-    value = await store.get(user0)
-    expect(value).to.be.a.bignumber.equal(new BN(0))
+    result = await store.get(user0)
+
+    expect(result.found).to.be.false
+    expect(result.value).to.be.a.bignumber.equal(new BN(0))
     expect(await store.has(user0)).to.be.false
   })
 
+  it('fails to find a non existing key', async () => {
+    let result
+
+    await store.set(user0, new BN(20))
+
+    result = await store.get(user1)
+    expect(result.found).to.be.false
+    expect(result.value).to.be.a.bignumber.equal(new BN(0))
+  })
+
   it('retrieves a value at a given index', async () => {
-    let value
+    let result
 
     await store.set(user0, new BN(20))
     await store.set(user1, new BN(40))
 
-    value = await store.getAt(0)
-    expect(value).to.be.a.bignumber.equal(new BN(20))
+    result = await store.getAt(0)
+    expect(result.found).to.be.true
+    expect(result.value).to.be.a.bignumber.equal(new BN(20))
 
-    value = await store.getAt(1)
-    expect(value).to.be.a.bignumber.equal(new BN(40))
+    result = await store.getAt(1)
+    expect(result.found).to.be.true
+    expect(result.value).to.be.a.bignumber.equal(new BN(40))
   })
 
   it('informs the stored keys', async () => {
